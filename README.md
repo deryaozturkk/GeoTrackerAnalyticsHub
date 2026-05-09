@@ -8,6 +8,7 @@ A modern, scalable Web API built with **.NET 8** and **Clean Architecture** prin
 *   **PostgreSQL & Entity Framework Core:** Robust data persistence with Code-First approach and fully configured migrations.
 *   **Dependency Injection Mastery:** Proper handling of Scoped services (`DbContext`) within Singleton background tasks using `IServiceScopeFactory`.
 *   **Containerized:** Fully ready for deployment with a multi-stage Dockerfile.
+*   **Unit Testing:** Implemented xUnit and In-Memory database for reliable, lightning-fast component testing following the AAA principle.
 
 ## 🛠️ Technology Stack
 *   **Framework:** .NET 8 Web API
@@ -16,6 +17,7 @@ A modern, scalable Web API built with **.NET 8** and **Clean Architecture** prin
 *   **Database:** PostgreSQL
 *   **ORM:** Entity Framework Core 8
 *   **DevOps:** Docker
+*   **Testing:** xUnit, Moq, EF Core InMemory
 
 ## 📂 Project Structure
 ```text
