@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-GeoTracker.Workers-2c2c2acb-d1bc-4d21-956d-324dadf2d00c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\GeoTracker.Domain\GeoTracker.Domain.csproj" />
+    <ProjectReference Include="..\GeoTracker.Persistence\GeoTracker.Persistence.csproj" />
+  </ItemGroup>
+</Project>
