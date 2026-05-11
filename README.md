@@ -2,6 +2,14 @@
 
 A modern, scalable **Polyglot Microservices** Web Application built with **.NET 8** (Clean Architecture), **Python FastAPI**, and **Angular 17**. This project is designed to handle Geographic Information Systems (GIS) data, specifically focusing on collecting, storing, visualizing, real-time processing via SignalR, and AI-driven spatial analysis.
 
+## 📸 App Screenshots
+
+<p align="center">
+  <img src="assets/map-overview.png" alt="Map Overview" width="48%">
+  &nbsp;
+  <img src="assets/ai-processing.png" alt="AI Processing Real-Time" width="48%">
+</p>
+
 ## 🚀 Key Features
 
 * **Clean Architecture (Onion Architecture):** Strict separation of concerns across Domain, Application, Infrastructure, and Presentation layers.
