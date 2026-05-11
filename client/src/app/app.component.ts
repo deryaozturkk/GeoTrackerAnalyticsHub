@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
+import * as signalR from '@microsoft/signalr';
 
 const iconDefault = L.icon({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -29,6 +30,30 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.initMap();
     this.loadPointsFromBackend(); // Harita yüklenir yüklenmez C#'a bağlan!
+    this.startSignalRConnection();
+  }
+
+  private hubConnection!: signalR.HubConnection;
+
+  private startSignalRConnection(): void {
+    // Backend'deki telsiz adresine (Hub) bağlan
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl('http://localhost:5184/maphub') 
+      .build();
+
+    // Bağlantıyı başlat
+    this.hubConnection
+      .start()
+      .then(() => console.log('📡 SignalR Bağlantısı Başarıyla Kuruldu!'))
+      .catch(err => console.error('SignalR Bağlantı Hatası:', err));
+
+    // Backend'den (Worker'dan) gelen mesajları dinle!
+    this.hubConnection.on('PointProcessed', (pointId: string) => {
+      console.log(`⚡ CANLI BİLGİ: ${pointId} ID'li nokta arka planda işlendi!`);
+      
+      // Veri işlendiğine göre haritadaki tüm verileri yenilemeden tekrar çek!
+      this.loadPointsFromBackend(); 
+    });
   }
 
   private initMap(): void {
