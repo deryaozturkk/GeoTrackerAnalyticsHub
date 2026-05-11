@@ -5,9 +5,9 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 ## 📸 App Screenshots
 
 <p align="center">
-  <img src="assets/map-overview.png" alt="Map Overview" width="48%">
+  <img src="assets/map-overview.png" alt="Map Overview" width="22%" >
   &nbsp;
-  <img src="assets/ai-processing.png" alt="AI Processing Real-Time" width="48%">
+  <img src="assets/ai-processing.png" alt="AI Processing Real-Time" width="22%"  >
 </p>
 
 ## 🚀 Key Features
