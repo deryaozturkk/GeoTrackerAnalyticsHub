@@ -3,6 +3,31 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+
+# --- .NET (C#) ---
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+appsettings.Development.json
+
+# --- Angular (Frontend) ---
+client/node_modules/
+client/dist/
+client/.angular/
+.editorconfig
+
+# --- Python (AI Service) ---
+ai_service/venv/
+ai_service/__pycache__/
+ai_service/*.pyc
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+
 # dotenv files
 .env
 

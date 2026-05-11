@@ -1,13 +1,15 @@
 # GeoTracker & Analytics Hub 🌍
 
-A modern, scalable Full-Stack Web Application built with **.NET 8** (Clean Architecture) and **Angular 17**. This project is designed to handle Geographic Information Systems (GIS) data, specifically focusing on collecting, storing, visualizing, and asynchronously processing spatial data (Points of Interest).
+A modern, scalable **Polyglot Microservices** Web Application built with **.NET 8** (Clean Architecture), **Python FastAPI**, and **Angular 17**. This project is designed to handle Geographic Information Systems (GIS) data, specifically focusing on collecting, storing, visualizing, real-time processing via SignalR, and AI-driven spatial analysis.
 
 ## 🚀 Key Features
 
 * **Clean Architecture (Onion Architecture):** Strict separation of concerns across Domain, Application, Infrastructure, and Presentation layers.
+* **Polyglot Microservices:** Distributed backend utilizing **.NET 8** for core business logic/data persistence and **Python FastAPI** for specialized AI/LLM spatial analysis.
+* **Real-Time Data Visualization:** Integrated **SignalR (WebSockets)** pushes asynchronous processing results from the .NET Worker directly to the Angular UI without page reloads.
 * **Modern Frontend (Angular 17):** Built using the latest Standalone Components architecture, offering a lightweight and modular user interface.
 * **Open-Source Map Integration:** Utilizes **Leaflet.js** for high-performance, interactive maps without the dependency or cost of Google Maps API keys.
-* **Asynchronous Processing:** Utilizes a highly optimized Background Worker Service (`IHostedService`) to process spatial data without blocking the main API threads.
+* **Asynchronous Processing:** Utilizes a highly optimized Background Worker Service (`IHostedService`) to process spatial data and communicate with the Python AI service without blocking the main API threads.
 * **PostgreSQL & Entity Framework Core:** Robust data persistence with Code-First approach and fully configured migrations.
 * **Dependency Injection Mastery:** Proper handling of Scoped services (`DbContext`) within Singleton background tasks using `IServiceScopeFactory`.
 * **Containerized:** Fully ready for deployment with a multi-stage Dockerfile.
@@ -16,9 +18,10 @@ A modern, scalable Full-Stack Web Application built with **.NET 8** (Clean Archi
 ## 🛠️ Technology Stack
 
 * **Frontend:** Angular 17 (Standalone), TypeScript, SCSS, Leaflet.js
-* **Backend Framework:** .NET 8 Web API
-* **Language:** C# 12
-* **Architecture:** Clean Architecture / N-Tier
+* **Backend (Core):** .NET 8 Web API, SignalR Hubs
+* **Microservice (AI):** Python 3.12, FastAPI, Uvicorn
+* **Language:** C# 12, Python 3
+* **Architecture:** Clean Architecture / Microservices / Polyglot
 * **Database:** PostgreSQL
 * **ORM:** Entity Framework Core 8
 * **DevOps:** Docker
@@ -30,67 +33,95 @@ A modern, scalable Full-Stack Web Application built with **.NET 8** (Clean Archi
 GeoTrackerAnalyticsHub/
 ├── src/                                   # BACKEND (.NET 8)
 │   ├── Core/
-│   │   ├── GeoTracker.Domain              # Core Entities (PointOfInterest)
-│   │   └── GeoTracker.Application         # Interfaces and Business Logic
+│   │   ├── GeoTracker.Domain              # Entities (PointOfInterest with AI fields)
+│   │   └── GeoTracker.Application         # Interfaces (IMapNotificationService)
 │   ├── Infrastructure/
-│   │   ├── GeoTracker.Persistence         # EF Core DbContext and PostgreSQL Configs
-│   │   └── GeoTracker.Workers             # Background Services for raw GIS data
+│   │   ├── GeoTracker.Persistence         # EF Core DbContext & Migrations
+│   │   └── GeoTracker.Workers             # Background Worker (HttpClient & AI logic)
 │   └── Presentation/
-│       └── GeoTracker.WebAPI              # API Controllers and Middleware
+│       └── GeoTracker.WebAPI              # Controllers, SignalR Hubs & Services
+│
+├── ai_service/                            # AI MICROSERVICE (Python)
+│   ├── main.py                            # FastAPI AI Analysis Logic
+│   └── venv/                              # Python Virtual Environment
 │
 └── client/                                # FRONTEND (Angular 17)
     ├── src/app/
-    │   ├── app.component.ts               # Main Map Component & Leaflet Integration
-    │   └── app.config.ts                  # HTTP Client & Routing Providers
-    └── angular.json                       # Angular workspace configurations
+    │   └── app.component.ts               # Map UI & SignalR Listener
+    └── angular.json
 ```
 
 ## 🏗️ System Architecture Flow
 
 ```mermaid
-graph TD
-    subgraph "Frontend Layer"
-        CLIENT[🗺️ Angular 17 / Leaflet Map UI]
+flowchart TD
+    %% Node Definitions with Shapes
+    CLIENT("🗺️ Angular 17 / Leaflet Map UI")
+    API("🌐 Web API Controllers")
+    HUB("🔔 SignalR Hub")
+    DB_CTX("🗄️ EF Core")
+    WORKER("⚙️ Background Worker")
+    PY_API("🐍 FastAPI / AI Engine")
+    DB[("🐘 PostgreSQL")]
+
+    %% Logical Groupings
+    subgraph Frontend ["📱 Frontend Layer"]
+        CLIENT
     end
 
-    subgraph "Presentation Layer"
-        API[🌐 Web API Controllers]
+    subgraph Presentation ["🌐 Presentation Layer (.NET)"]
+        API
+        HUB
     end
 
-    subgraph "Infrastructure Layer"
-        DB_CTX[🗄️ EF Core]
-        WORKER[⚙️ Background Worker]
+    subgraph Infrastructure ["🏗️ Infrastructure Layer (.NET)"]
+        DB_CTX
+        WORKER
     end
 
-    subgraph "Database Layer"
-        DB[(🐘 PostgreSQL)]
+    subgraph External ["🧠 AI & 💾 Data Layer"]
+        PY_API
+        DB
     end
 
-    CLIENT -- "1. POST /api/Points (Click on Map)" --> API
-    API -- "2. Save (IsProcessed: false)" --> DB_CTX
-    DB_CTX --> DB
+    %% Data Flow with Line Breaks (<br>) to prevent horizontal stretching
+    CLIENT -- "1. POST /api/Points<br>(Click on Map)" --> API
+    API -- "2. Save<br>(IsProcessed: false)" --> DB_CTX
+    DB_CTX ==> DB
 
     WORKER -. "3. Periodic Scan" .-> DB_CTX
-    WORKER -- "4. Analyze & Update" --> DB_CTX
-
-    API -. "5. GET /api/Points" .-> CLIENT
+    WORKER -- "4. HTTP GET<br>/analyze" --> PY_API
+    PY_API -- "5. Return<br>AI Score" --> WORKER
+    WORKER -- "6. Update DB<br>(IsProcessed: true)" --> DB_CTX
+    WORKER -- "7. Notify via Hub" --> HUB
+    HUB -- "8. WebSocket Push" --> CLIENT
 ```
 
 ## ⚙️ Getting Started
 
 ### Prerequisites
 
-*  .NET 8 SDK
+* .NET 8 SDK
+* Node.js (v18+) & Angular CLI (v17+)
+* Python (3.10+)
+* PostgreSQL
+* Docker (Optional)
 
-*  Node.js (v18+) & Angular CLI (v17+)
+### 1. Running the AI Microservice (Python)
 
-*  PostgreSQL
+Open a terminal and navigate to the `ai_service` directory:
 
-*  Docker (Optional)
+```bash
+cd ai_service
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install fastapi uvicorn
+uvicorn main:app --reload --port 8000
+```
 
-### 1. Running the Backend Locally
+### 2. Running the Backend (.NET) Locally
 
-Clone the repository.
+Open a new terminal and clone the repository if you haven't already.
 
 Update the `DefaultConnection` string in:
 
@@ -115,12 +146,12 @@ dotnet run --project src/Presentation/GeoTracker.WebAPI
 Navigate to:
 
 ```text
-http://localhost:<PORT>/swagger
+http://localhost:5184/swagger
 ```
 
 to access the API documentation.
 
-### 2. Running the Frontend Locally
+### 3. Running the Frontend Locally
 
 Open a new terminal and navigate to the frontend directory:
 
@@ -146,13 +177,11 @@ Open your browser and navigate to:
 http://localhost:4200
 ```
 
-to view the interactive map.
+to view the interactive map and test the real-time AI processing architecture.
 
-## Running with Docker (Backend)
+## 🐳 Running with Docker (Backend)
 
 ```bash
 docker build -t geotracker-api .
 docker run -d -p 8080:8080 geotracker-api
 ```
-
-````</PORT>
