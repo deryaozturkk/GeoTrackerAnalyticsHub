@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using GeoTracker.Application.Interfaces; 
 
 namespace GeoTracker.Workers;
 
@@ -14,11 +15,16 @@ public class SpatialDataProcessor : BackgroundService
 {
     private readonly ILogger<SpatialDataProcessor> _logger;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IMapNotificationService _notificationService; 
 
-    public SpatialDataProcessor(ILogger<SpatialDataProcessor> logger, IServiceScopeFactory scopeFactory)
+    public SpatialDataProcessor(
+        ILogger<SpatialDataProcessor> logger,
+        IServiceScopeFactory scopeFactory, 
+        IMapNotificationService notificationService)
     {
         _logger = logger;
         _scopeFactory = scopeFactory;
+        _notificationService = notificationService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +41,7 @@ public class SpatialDataProcessor : BackgroundService
                 var unprocessedPoints = await dbContext.PointsOfInterest
                     .Where(p => !p.IsProcessed)
                     .OrderBy(p => p.CreatedAt)
-                    .Take(10) // Her seferinde 10 kayıt al
+                    .Take(10) // Bir seferde 10 veri işleyelim
                     .ToListAsync(stoppingToken);
 
                 if (unprocessedPoints.Any())
@@ -47,6 +53,9 @@ public class SpatialDataProcessor : BackgroundService
                         await Task.Delay(500, stoppingToken); // İşlem yapıyormuş gibi beklet
                         point.IsProcessed = true;
                         _logger.LogInformation($"İşlendi: {point.Name}");
+                        
+                        // Veri işlendiği an Angular'a haber ver!
+                        await _notificationService.NotifyPointProcessedAsync(point.Id.ToString());
                     }
                     await dbContext.SaveChangesAsync(stoppingToken);
                 }

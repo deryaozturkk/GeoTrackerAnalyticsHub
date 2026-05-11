@@ -1,6 +1,9 @@
 using GeoTracker.Persistence.Contexts;
 using GeoTracker.Workers;
 using Microsoft.EntityFrameworkCore;
+using GeoTracker.Application.Interfaces;
+using GeoTracker.WebAPI.Services;
+using GeoTracker.WebAPI.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,9 @@ builder.Services.AddHostedService<SpatialDataProcessor>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
+builder.Services.AddSingleton<IMapNotificationService, MapNotificationService>();
 
 // Angular'a CORS izni veriyoruz
 builder.Services.AddCors(options =>
@@ -22,7 +28,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:4200") // Sadece Angular'ın adresine izin ver
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -36,8 +43,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngular"); // CORS'u aktif et
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
+app.MapHub<MapHub>("/maphub"); 
+
 
 app.Run();
