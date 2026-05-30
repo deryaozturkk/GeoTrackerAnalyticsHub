@@ -5,9 +5,9 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 ## 📸 App Screenshots
 
 <p align="center">
-  <img src="assets/map-overview.png" alt="Map Overview" width="22%" >
+  <img src="assets/map-pending.png" alt="Real-Time SignalR Pending State" width="45%" >
   &nbsp;
-  <img src="assets/ai-processing.png" alt="AI Processing Real-Time" width="22%"  >
+  <img src="assets/map-analyzed.png" alt="Dynamic AI Result Popup" width="45%"  >
 </p>
 
 ## 🚀 Key Features
@@ -15,8 +15,8 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 * **Clean Architecture (Onion Architecture):** Strict separation of concerns across Domain, Application, Infrastructure, and Presentation layers.
 * **Polyglot Microservices:** Distributed backend utilizing **.NET 8** for core business logic/data persistence and **Python FastAPI** for specialized AI/LLM spatial analysis.
 * **Real-Time LLM Intelligence:** Integrates **Google Gemini 3.5 Flash** API to dynamically evaluate coordinates and generate contextual geographical risk assessments asynchronously.
-* **Real-Time Data Visualization:** Integrated **SignalR (WebSockets)** pushes asynchronous processing results from the .NET Worker directly to the Angular UI without page reloads.
-* **Modern Frontend (Angular 17):** Built using the latest Standalone Components architecture, offering a lightweight and modular user interface.
+* **Real-Time UI Updates:** Integrated **SignalR (WebSockets)** pushes asynchronous processing results from the .NET Worker directly to the Angular UI. Map pop-ups dynamically change from "Pending" to highly detailed, color-coded AI analysis without page reloads.
+* **Modern Frontend (Angular 17):** Built using the latest Standalone Components architecture, offering a lightweight and modular user interface with custom dynamic Leaflet popups.
 * **Open-Source Map Integration:** Utilizes **Leaflet.js** for high-performance, interactive maps without the dependency or cost of Google Maps API keys.
 * **Asynchronous Processing:** Utilizes a highly optimized Background Worker Service (`IHostedService`) to process spatial data and communicate with the Python AI service without blocking the main API threads.
 * **Secure Secrets Management:** Implemented environment variables (`.env`) using `python-dotenv` to safeguard API keys and sensitive credentials from version control.
@@ -29,7 +29,7 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 
 * **Frontend:** Angular 17 (Standalone), TypeScript, SCSS, Leaflet.js
 * **Backend (Core):** .NET 8 Web API, SignalR Hubs
-* **Microservice (AI):** Python 3.12, FastAPI, Uvicorn, Google Generative AI (Gemini)
+* **Microservice (AI):** Python 3.12, FastAPI, Uvicorn, Google Generative AI (Gemini 3.5 Flash)
 * **Language:** C# 12, Python 3
 * **Architecture:** Clean Architecture / Microservices / Polyglot / Event-Driven
 * **Database:** PostgreSQL
@@ -59,7 +59,7 @@ GeoTrackerAnalyticsHub/
 │
 └── client/                                # FRONTEND (Angular 17)
     ├── src/app/
-    │   └── app.component.ts               # Map UI & SignalR Listener
+    │   └── app.component.ts               # Map UI, Dynamic Popups & SignalR Listener
     └── angular.json
 ```
 
