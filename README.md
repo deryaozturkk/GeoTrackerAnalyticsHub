@@ -1,6 +1,6 @@
 # GeoTracker & Analytics Hub 🌍
 
-A modern, scalable **Polyglot Microservices** Web Application built with **.NET 8** (Clean Architecture), **Python FastAPI**, and **Angular 17**. This project is designed to handle Geographic Information Systems (GIS) data, specifically focusing on collecting, storing, visualizing, real-time processing via SignalR, and AI-driven spatial analysis.
+A modern, scalable **Polyglot Microservices** Web Application built with **.NET 8** (Clean Architecture), **Python FastAPI**, and **Angular 17**. This project is designed to handle Geographic Information Systems (GIS) data, specifically focusing on collecting, storing, visualizing, real-time processing via SignalR, and **AI-driven spatial analysis using Google Gemini 3.5 Flash LLM**.
 
 ## 📸 App Screenshots
 
@@ -14,10 +14,12 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 
 * **Clean Architecture (Onion Architecture):** Strict separation of concerns across Domain, Application, Infrastructure, and Presentation layers.
 * **Polyglot Microservices:** Distributed backend utilizing **.NET 8** for core business logic/data persistence and **Python FastAPI** for specialized AI/LLM spatial analysis.
+* **Real-Time LLM Intelligence:** Integrates **Google Gemini 3.5 Flash** API to dynamically evaluate coordinates and generate contextual geographical risk assessments asynchronously.
 * **Real-Time Data Visualization:** Integrated **SignalR (WebSockets)** pushes asynchronous processing results from the .NET Worker directly to the Angular UI without page reloads.
 * **Modern Frontend (Angular 17):** Built using the latest Standalone Components architecture, offering a lightweight and modular user interface.
 * **Open-Source Map Integration:** Utilizes **Leaflet.js** for high-performance, interactive maps without the dependency or cost of Google Maps API keys.
 * **Asynchronous Processing:** Utilizes a highly optimized Background Worker Service (`IHostedService`) to process spatial data and communicate with the Python AI service without blocking the main API threads.
+* **Secure Secrets Management:** Implemented environment variables (`.env`) using `python-dotenv` to safeguard API keys and sensitive credentials from version control.
 * **PostgreSQL & Entity Framework Core:** Robust data persistence with Code-First approach and fully configured migrations.
 * **Dependency Injection Mastery:** Proper handling of Scoped services (`DbContext`) within Singleton background tasks using `IServiceScopeFactory`.
 * **Containerized:** Fully ready for deployment with a multi-stage Dockerfile.
@@ -27,11 +29,12 @@ A modern, scalable **Polyglot Microservices** Web Application built with **.NET 
 
 * **Frontend:** Angular 17 (Standalone), TypeScript, SCSS, Leaflet.js
 * **Backend (Core):** .NET 8 Web API, SignalR Hubs
-* **Microservice (AI):** Python 3.12, FastAPI, Uvicorn
+* **Microservice (AI):** Python 3.12, FastAPI, Uvicorn, Google Generative AI (Gemini)
 * **Language:** C# 12, Python 3
-* **Architecture:** Clean Architecture / Microservices / Polyglot
+* **Architecture:** Clean Architecture / Microservices / Polyglot / Event-Driven
 * **Database:** PostgreSQL
 * **ORM:** Entity Framework Core 8
+* **Security:** dotenv (.env) configuration
 * **DevOps:** Docker
 * **Testing:** xUnit, Moq, EF Core InMemory
 
@@ -50,7 +53,8 @@ GeoTrackerAnalyticsHub/
 │       └── GeoTracker.WebAPI              # Controllers, SignalR Hubs & Services
 │
 ├── ai_service/                            # AI MICROSERVICE (Python)
-│   ├── main.py                            # FastAPI AI Analysis Logic
+│   ├── main.py                            # FastAPI & Gemini AI Analysis Logic
+│   ├── .env                               # API Keys (Git ignored)
 │   └── venv/                              # Python Virtual Environment
 │
 └── client/                                # FRONTEND (Angular 17)
@@ -69,7 +73,7 @@ flowchart TD
     HUB("🔔 SignalR Hub")
     DB_CTX("🗄️ EF Core")
     WORKER("⚙️ Background Worker")
-    PY_API("🐍 FastAPI / AI Engine")
+    PY_API("🐍 FastAPI / Gemini AI Engine")
     DB[("🐘 PostgreSQL")]
 
     %% Logical Groupings
@@ -99,7 +103,7 @@ flowchart TD
 
     WORKER -. "3. Periodic Scan" .-> DB_CTX
     WORKER -- "4. HTTP GET<br>/analyze" --> PY_API
-    PY_API -- "5. Return<br>AI Score" --> WORKER
+    PY_API -- "5. Return<br>Gemini AI Score" --> WORKER
     WORKER -- "6. Update DB<br>(IsProcessed: true)" --> DB_CTX
     WORKER -- "7. Notify via Hub" --> HUB
     HUB -- "8. WebSocket Push" --> CLIENT
@@ -114,6 +118,7 @@ flowchart TD
 * Python (3.10+)
 * PostgreSQL
 * Docker (Optional)
+* Google AI Studio API Key (Free Tier)
 
 ### 1. Running the AI Microservice (Python)
 
@@ -123,7 +128,17 @@ Open a terminal and navigate to the `ai_service` directory:
 cd ai_service
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install fastapi uvicorn
+pip install fastapi uvicorn google-generativeai python-dotenv
+```
+
+**Security Configuration:**
+Create a `.env` file in the `ai_service` root directory and add your Google Gemini API key:
+```text
+GEMINI_API_KEY=your_google_api_key_here
+```
+
+Start the service:
+```bash
 uvicorn main:app --reload --port 8000
 ```
 
@@ -148,16 +163,11 @@ dotnet ef database update --project src/Infrastructure/GeoTracker.Persistence --
 Run the application:
 
 ```bash
-dotnet run --project src/Presentation/GeoTracker.WebAPI
+cd src/Presentation/GeoTracker.WebAPI
+dotnet run
 ```
 
-Navigate to:
-
-```text
-http://localhost:5184/swagger
-```
-
-to access the API documentation.
+Navigate to `http://localhost:5184/swagger` to access the API documentation.
 
 ### 3. Running the Frontend Locally
 
@@ -179,13 +189,7 @@ Start the Angular development server:
 ng serve
 ```
 
-Open your browser and navigate to:
-
-```text
-http://localhost:4200
-```
-
-to view the interactive map and test the real-time AI processing architecture.
+Open your browser and navigate to `http://localhost:4200` to view the interactive map and test the real-time AI processing architecture.
 
 ## 🐳 Running with Docker (Backend)
 
